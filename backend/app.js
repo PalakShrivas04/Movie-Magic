@@ -1,9 +1,19 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRouter from "./routes/user-routes";
+import adminRouter from "./routes/admin-routes";
+import movieRouter from "./routes/movie-routes";
 dotenv.config();
 
 const app = express();
+
+
+//middlewares
+app.use(express.json());
+app.use("/user", userRouter);
+app.use("/admin", adminRouter);
+app.use("/movie", movieRouter);
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -14,4 +24,4 @@ mongoose
   )
   .catch((e) => console.log(e));
 
-//Ejj7d0cKbZBupLBF
+
