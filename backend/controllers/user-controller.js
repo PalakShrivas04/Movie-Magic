@@ -1,5 +1,6 @@
 import User from "../models/User";
 import bcrypt from 'bcryptjs';
+import Bookings from "../models/Bookings";
 
 export const getAllUsers = async(req, res, next)=> {
     let users;
@@ -39,7 +40,7 @@ export const signup = async (req, res, next) => {
     if (!user) {
         return res.status(500).json({ message: "Unexpected Error Ocurred" });
     }
-    return res.status(201).json({ user });
+    return res.status(201).json({ id:user._id });
 
 };
 
@@ -85,7 +86,7 @@ export const deleteUser = async (req, res, next) => {
     return res.status(200).json({ message: "Deleted Sucessfully" });
 };
 
-export const login = async (req, res, next)=>{
+export const login = async (req, res, next) => {
     const { email, password } = req.body;
     if (
         !email &&
@@ -113,4 +114,38 @@ export const login = async (req, res, next)=>{
     }
 
     return res.status(200).json({ message: "Login Sucessfully" });
-}
+};
+
+export const getBookingsOfUser = async (req, res, next) => {
+    const id = req.params.id;
+
+
+    let bookings;
+    try {
+        bookings = await Bookings.find({ user: id });
+    } catch (error) {
+        return console.log(error);
+    }
+
+    if (!bookings) {
+        return res.status(500).json({ message: "Unable to get Bookings" });
+    }
+    return res.status(200).json({ bookings });
+};
+
+export const getUserById = async (req, res, next) => {
+    const id = req.params.id;
+    let user;
+    try {
+        user = await User.findById(id);
+    }
+    catch (error) {
+        return console.log(error);
+    }
+    if (!user) {
+        return res.status(500).json({ message: "Unexpected Error Occured" })
+    }
+
+    return res.status(200).json({ user });
+};
+

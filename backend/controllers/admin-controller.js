@@ -37,6 +37,20 @@ export const addAdmin = async (req, res, next) => {
     
 };
 
+export const getAdminById = async (req, res, next) => {
+    const id = req.params.id;
+    let admin;
+    try {
+        admin = await Admin.findById(id).populate("addedMovies");
+    } catch (error) {
+        return console.log(error);
+    }
+    if (!admin) {
+        return res.status(500).json({ message: "Cannot fdind Admin" });
+    }
+    return res.status(201).json({ admin });
+};
+
 export const adminLogin = async (req, res, next) => {
     const { email, password } = req.body;
 
@@ -67,3 +81,17 @@ export const adminLogin = async (req, res, next) => {
 
     return res.status(200).json({ message: "Authentication Complete", token,id:existingAdmin._id });
 };
+
+
+export const getAdmins = async (req, res, next) => {
+    let admins;
+    try {
+        admins = await Admin.find();
+     } catch (error) {
+        return console.log(error);
+    }
+    if (!admins) {
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+    return res.status(200).json({ admins });
+}

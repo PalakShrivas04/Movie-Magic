@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import Movie from "../models/Movie";
+import Admin from "../models/Admin";
+import mongoose from "mongoose";
 
 
 
@@ -43,7 +45,15 @@ export const addMovie = async (req, res, next) => {
           posterUrl,
           title,
         });
-        movie = await movie.save();
+
+        const session = await mongoose.startSession();
+        const adminUser = await Admin.findById(adminId);
+        session.startTransaction(); 
+        await movie.save({ session });
+        adminUser.addedMovies.push(movie);
+        await adminUser.save({ session }); 
+        await session.commitTransaction();
+
      } catch (error) {
         return console.log(error);
     }
@@ -54,3 +64,32 @@ export const addMovie = async (req, res, next) => {
 
     return res.status(201).json({ movie });
 };
+
+
+export const getAllMovies = async (req, res, next) => {
+    let movies;
+    try {
+        movies = await Movie.find();
+    } catch (error) {
+        return console.log(error);
+    }
+    if (!movies) {
+        return res.status(500).json({ message: "Request Failed" });
+    }
+
+    return res.status(200).json({ movies });
+};
+
+export const getMovieById = async (req, res, next) => {
+    const id = req.params.id;
+    let movie;
+    try {
+        movie = await Movie.findById(id);
+    } catch (error) {
+        return console.log(error);
+    }
+    if (!movie) {
+        return res.status(404).json({ message: "Invalid Movie ID" });
+    }
+    return res.status(200).json({ movie });
+}
